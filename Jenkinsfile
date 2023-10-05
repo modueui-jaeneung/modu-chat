@@ -62,7 +62,7 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 script {
-                    docker.withRegistry("https://" + , "ecr:ap-northeast-2:" + AWS_CREDENTIAL_ID) {
+                    docker.withRegistry("https://" + ECR_PATH , "ecr:ap-northeast-2:" + AWS_CREDENTIAL_ID) {
                         dockerImage.push()
                     }
                 }
