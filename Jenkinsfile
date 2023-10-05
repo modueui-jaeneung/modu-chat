@@ -2,6 +2,8 @@ pipeline {
     agent any
 
     environment {
+        gitEmail = 'hgk9872@gmail.com'
+        gitName = 'hgk9872'
         dockerImage = ''
         dockerImageRegistry = ''
         ECR_PATH = credentials('ecr-path')
@@ -75,6 +77,38 @@ pipeline {
                 }
             }
         }
+
+        stage('update manifest registry') {
+            steps {
+                script {
+                    // Clone the Helm chart repo
+                    git branch: 'main',
+                        credentialsId: 'github_access_token_hugo',
+                        url: 'https://github.com/modueui-jaeneung/kubernetes-manifest.git'
+
+                    // Update the Docker image tag in the values.yaml file
+                    sh """
+                        git config --global user.email ${gitEmail}
+                        git config --global user.name ${gitName}
+                        ECR_REGISTRY="${ECR_PATH}/${ECR_REPOSITORY}"
+                        sed -i 's/$ECR_REPOSITORY:1.*\$/$ECR_REPOSITORY:1.$BUILD_NUMBER/g' chat-deployment.yaml
+                        git add chat-deployment.yaml
+                        git commit -m "Update Docker image tag for $BUILD_NUMBER environment"
+                    """
+                }
+            }
+            post {
+                success {
+                    withCredentials([gitUsernamePassword(credentialsId: 'github_access_token_hugo', gitToolName: 'Default')]) {
+                        sh "git push -u origin main"
+                    }
+                }
+                failure {
+                    sh 'echo "Fail Update Helm Chart"'
+                }
+            }
+        }
+
 
     }
 }
