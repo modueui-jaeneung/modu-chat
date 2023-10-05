@@ -104,7 +104,7 @@ pipeline {
                     }
                 }
                 failure {
-                    sh 'echo "Fail Update Helm Chart"'
+                    sh 'echo "Fail update manifest"'
                 }
             }
         }
