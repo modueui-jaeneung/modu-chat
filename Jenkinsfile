@@ -6,7 +6,6 @@ pipeline {
         dockerImageRegistry = ''
         ECR_PATH = credentials('ecr-path')
         ECR_REPOSITORY = 'modu-chat'
-        REGION = 'ap-northeast-2'
         AWS_CREDENTIAL_ID = 'build-test_ecr'
     }
 
@@ -48,7 +47,7 @@ pipeline {
         stage('Build docker image') {
             steps {
                 script {
-                    dockerImageRegistry = '$ECR_PATH/$ECR_REPOSITORY'
+                    dockerImageRegistry = "${ECR_PATH}/${ECR_REPOSITORY}"
                     dockerImage = docker.build dockerImageRegistry + ":1.$BUILD_NUMBER"
                 }
             }
@@ -62,30 +61,20 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 script {
-                    docker.withRegistry("https://" + ECR_PATH , "ecr:ap-northeast-2:" + AWS_CREDENTIAL_ID) {
+                    docker.withRegistry("https://${ECR_PATH}", "ecr:ap-northeast-2:" + AWS_CREDENTIAL_ID) {
                         dockerImage.push()
                     }
                 }
             }
+            post {
+                success {
+                    sh "docker rmi $dockerImageRegistry:1.$BUILD_NUMBER"
+                }
+                failure {
+                    error 'Docker Image Push Fail'
+                }
+            }
         }
-
-        // stage('Push docker image') {
-        //     steps {
-        //         script {
-        //             docker.withRegistry( '', AWS_CREDENTIAL_ID ) {
-        //                 dockerImage.push()
-        //             }
-        //         }
-        //     }
-        //     post {
-        //         success {
-        //             sh "docker rmi $dockerHubRegistry:1.$BUILD_NUMBER"
-        //         }
-        //         failure {
-        //             error 'Docker Image Push Fail'
-        //         }
-        //     }
-        // }
 
     }
 }
