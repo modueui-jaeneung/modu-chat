@@ -93,7 +93,7 @@ pipeline {
                         ECR_REGISTRY="${ECR_PATH}/${ECR_REPOSITORY}"
                         sed -i 's/$ECR_REPOSITORY:1.*\$/$ECR_REPOSITORY:1.$BUILD_NUMBER/g' chat-deployment.yaml
                         git add chat-deployment.yaml
-                        git commit -m "Update Docker image tag for $BUILD_NUMBER environment"
+                        git commit -m "Update Docker image tag for 1.$BUILD_NUMBER version"
                     """
                 }
             }
