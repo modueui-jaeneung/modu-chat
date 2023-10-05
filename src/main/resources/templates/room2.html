@@ -415,7 +415,7 @@
 
     $(function(){
 
-        const socket = new SockJS('/ws')
+        const socket = new SockJS('/chat/ws')
         let stompClient = Stomp.over(socket)
 
         // connection이 맺어지면 실행
