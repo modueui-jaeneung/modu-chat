@@ -63,7 +63,7 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 script {
-                    docker.withRegistry("https://${ECR_PATH}", "ecr:ap-northeast-2:" + AWS_CREDENTIAL_ID) {
+                    docker.withRegistry("https://" + ECR_PATH, "ecr:ap-northeast-2:" + AWS_CREDENTIAL_ID) {
                         dockerImage.push()
                     }
                 }
@@ -78,19 +78,18 @@ pipeline {
             }
         }
 
-        stage('update manifest registry') {
+        stage('Update manifest registry') {
             steps {
                 script {
-                    // Clone the Helm chart repo
+                    // Clone the private manifest repo
                     git branch: 'main',
                         credentialsId: 'github_access_token_hugo',
                         url: 'https://github.com/modueui-jaeneung/kubernetes-manifest.git'
 
-                    // Update the Docker image tag in the values.yaml file
+                    // Update the Docker image tag in the deployment yaml file
                     sh """
                         git config --global user.email ${gitEmail}
                         git config --global user.name ${gitName}
-                        ECR_REGISTRY="${ECR_PATH}/${ECR_REPOSITORY}"
                         sed -i 's/$ECR_REPOSITORY:1.*\$/$ECR_REPOSITORY:1.$BUILD_NUMBER/g' chat-deployment.yaml
                         git add chat-deployment.yaml
                         git commit -m "Update Docker image tag for 1.$BUILD_NUMBER version"
