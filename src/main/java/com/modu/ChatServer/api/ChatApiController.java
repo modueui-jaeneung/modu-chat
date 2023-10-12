@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/chat")
+//@RequestMapping("/chat")
 public class ChatApiController {
 
     private final ChatRoomRepository chatRoomRepository;
